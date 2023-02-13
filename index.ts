@@ -40,19 +40,19 @@ class Blob {
   private uploadToBlob(req: any, file: any, cb: any) {
     var that = this;
     return function (something: any, blobPath: string) {
-      var blobStream = that.blobSvc.createWriteStreamToBlockBlob(that.container, blobPath, function(error){
-        if(error){cb(error);}
+      var blobStream = that.blobSvc.createWriteStreamToBlockBlob(that.container, blobPath, function (error) {
+        if (error) { cb(error); }
       });
       file.stream.pipe(blobStream);
-      blobStream.on("close", function(){
-        var fullUrl = that.blobSvc.getUrl(that.container, blobPath); 
+      blobStream.on("close", function () {
+        var fullUrl = that.blobSvc.getUrl(that.container, blobPath);
         var fileClone = JSON.parse(JSON.stringify(file));
         fileClone.container = that.container;
         fileClone.blobPath = blobPath;
         fileClone.url = fullUrl;
         cb(null, fileClone);
       });
-      blobStream.on("error", function(error){
+      blobStream.on("error", function (error) {
         cb(error);
       });
     }
@@ -61,7 +61,7 @@ class Blob {
 
   //Handles the files delivered from Multer and sends them to Azure Blob storage. _handleFile is a required function for multer storage engines
   public _handleFile(req: any, file: any, cb: any) {
-    if (this.error){
+    if (this.error) {
       cb(this.error);
     }
     else if (this.blobPathResolver) {
@@ -71,7 +71,11 @@ class Blob {
 
       //Extracts the extension for the filename
       var re = /(?:\.([^.]+))?$/;
-      var ext = re.exec(file.originalname)[1];
+      var extResult = re.exec(file.originalname);
+      var ext
+      if (extResult) {
+        ext = extResult[1]
+      }
 
       //Creates a unique filename based on the time and appends the extension
       var newName = Date.now() + '-' + encodeURIComponent(new Buffer(file.originalname).toString('base64')) + '.' + ext;
@@ -89,6 +93,3 @@ class Blob {
 module.exports = function (opts: iOpts) {
   return new Blob(opts);
 }
-
-
-

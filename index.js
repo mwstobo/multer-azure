@@ -49,7 +49,11 @@ var Blob = (function () {
         }
         else {
             var re = /(?:\.([^.]+))?$/;
-            var ext = re.exec(file.originalname)[1];
+            var extResult = re.exec(file.originalname);
+            var ext;
+            if (extResult) {
+                ext = extResult[1];
+            }
             var newName = Date.now() + '-' + encodeURIComponent(new Buffer(file.originalname).toString('base64')) + '.' + ext;
             this.uploadToBlob(req, file, cb)(null, newName);
         }
